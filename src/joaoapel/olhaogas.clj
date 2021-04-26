@@ -43,8 +43,12 @@
 
 
 
-
+;;-----------------------------------------------------------------
+;;TESTE COM A BIBLIOTECA BADIGEON
+;;-----------------------------------------------------------------
 ;; Compile java sources under the src-java directory
+
+
 (defn java-compiler [x]
   (javac/javac x {;; Emit class files to the target/classes directory
                   :compile-path "target/classes"
@@ -55,9 +59,16 @@
 
 
 (java-compiler "src-java/TarsosDSP/")
+;;-----------------------------------------------------------------
+;;-----------------------------------------------------------------
 
 
+;;-----------------------------------------------------------------
+;; TESTES COM A TRANSFORMAÇÃO DO AUDIO
+;;-----------------------------------------------------------------
 ;;Transformando Java IO para formato do Tarsos
+
+
 (defn import-audio-tarsos [x buffersize bufferoverlap]
  (AudioDispatcherFactory/fromFile x buffersize bufferoverlap))
 
