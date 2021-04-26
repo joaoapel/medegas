@@ -2,86 +2,65 @@
   (:gen-class)
   (:require [clojure.java.io :as io]
             [badigeon.javac :as javac])
-  (:import (be.tarsos.dsp.pitch PitchDetectionHandler PitchProcessor PitchDetectionResult PitchProcessor$PitchEstimationAlgorithm)
+  (:import (be.tarsos.dsp.pitch PitchDetectionHandler PitchDetector PitchProcessor
+                                PitchDetectionResult PitchProcessor$PitchEstimationAlgorithm)
            (be.tarsos.dsp.io.jvm AudioDispatcherFactory JVMAudioInputStream)
            (be.tarsos.dsp AudioDispatcher AudioEvent AudioProcessor)))
 
-;;tentativa funcionando
+
+;;https://github.com/clojure/tools.deps.alpha/wiki/Tools
+;;Clojure Extended: Java interop (English Edition), Ivan Grishaev
+
+;;Usar reify na interface
 (defn detection-pitch [source]
   (let [dispatcher (AudioDispatcherFactory/fromFile (io/file source) 2048 1024)
         algorithm (PitchProcessor$PitchEstimationAlgorithm/YIN)
         pitch-detection (PitchDetectionResult.)
-        handler (.handlePitch())]))
-
-
-(defn detection-pitch [source]
-  (let [dispatcher (AudioDispatcherFactory/fromFile (io/file source) 2048 1024)
-        algorithm (PitchProcessor$PitchEstimationAlgorithm/YIN)
-        audio-processor (.addAudioProcessor())
-        pitch-detection (PitchDetectionResult.)
-        handler (.handlePitch(pitch-detection))]
-    (audio-processor dispatcher)))
-
-
-
-;;Colocar ponto no fim do algoritmo não funciona
-(defn detection-pitch [source]
-  (let [dispatcher (AudioDispatcherFactory/fromFile (io/file source) 2048 1024)
-        algorithm (PitchProcessor$PitchEstimationAlgorithm/YIN)
-        pitch-processor (.getPitch())
-        audio-processor (.addAudioProcessor())
-        pitch-detection (PitchDetectionResult.)
-        handler (.handlePitch())]
-    (-> (.run dispatcher)
-        audio-processor
-        pitch-detection
-
-        handler)))
+        pdh (reify PitchDetectionHandler
+              (handlePitch [this result event]
+                (println result event)))
+        pitch (atom[])]
+    (-> dispatcher)))
 
 
 
 (detection-pitch "./cheio.wav")
 
-(defn detection-pitch [source]
-  (let [dispatcher (AudioDispatcherFactory/fromFile (io/file source) 2048 1024)
-        detector (PitchProcessor$PitchEstimationAlgorithm/YIN)
-        handler (.handlePitch())
-        result (PitchDetectionResult.)
-        audio-event (TarsosDSPAudioFormat)]
-    (handler result audio-event)))
 
-(def classe-audio (detection-pitch "./cheio.wav"))
+(comment
+  "
+   PitchDetectionHandler handler = new PitchDetectionHandler() {
+        @Override
+        public void handlePitch(PitchDetectionResult pitchDetectionResult,
+                AudioEvent audioEvent) {
+            System.out.println(audioEvent.getTimeStamp() + " " pitchDetectionResult.getPitch());
+        }
+    };
+    AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(2048, 0);
+    adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 44100, 2048, handler));
+    adp.run();
+")
 
-(class classe-audio)
 
- ;; Compile java sources under the src-java directory
+
+
+;; Compile java sources under the src-java directory
 (defn java-compiler [x]
   (javac/javac x {;; Emit class files to the target/classes directory
                   :compile-path "target/classes"
                   ;; Additional options used by the javac command
                   :javac-options ["-cp" "src:target/classes" "-target" "7"
-                                  "-source" "7" "-Xlint:-options"]}))
+                                  "-source" "11" "-Xlint:-options"]}))
 
 
 
 (java-compiler "src-java/TarsosDSP/")
 
-(def processor PitchProcessor$PitchEstimationAlgorithm)
 
-(defn detect [x]
-  PitchDetectionResult x)
-
+;;Transformando Java IO para formato do Tarsos
 (defn import-audio-tarsos [x buffersize bufferoverlap]
  (AudioDispatcherFactory/fromFile x buffersize bufferoverlap))
 
-(defn pdh [audio-event]
-  (.getPitch audio-event))
-
-(.getFormat file-tarsos)
-;; => #object[be.tarsos.dsp.io.TarsosDSPAudioFormat 0x51b96a25
-;; "PCM_SIGNED 16000.0 Hz, 16 bit, mono, 2 bytes/frame, little-endian"]
-
-(PitchProcessor$PitchEstimationAlgorithm/YIN file-tarsos 1)
 
 
 (comment
@@ -94,81 +73,7 @@
     ,)
 
 
-(defn import-audio-java [x]
-  (io/file x))
-
-
-(def file-cheio (import-audio-java "./cheio.wav"))
-
-(class file-cheio)
-;; => java.io.File
-
-(println file-cheio)
-
-(def file-tarsos (import-audio-tarsos file-cheio 2048 1024))
-
-(class file-tarsos)
-;; => be.tarsos.dsp.AudioDispatcher
-
-(defn pitch-handler []
-  (PitchDetectionHandler PitchDetectionResult AudioEvent))
-
-(defn audioprocessor [x]
-  AudioProcessor x)
-
-(audioprocessor file-tarsos)
-
-(class file-tarsos)
-
-(defn pitch-processor [x]
-  PitchProcessor x)
-
-(pitch-processor PitchProcessor$PitchEstimationAlgorithm/YIN)
-
-(PitchProcessor PitchProcessor$PitchEstimationAlgorithm)
-
-
-
-
-
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
   (println "Hello, World!"))
-;; => #'joaoapel.olhaogas/-main
-;; => #'joaoapel.olhaogas/-main
-
-
-(comment
-
-  void connectsAudioDispatchertoMicrophone() {}
-
-  AudioDispatcher dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
-
-  PitchDetectionHandler pdh = new PitchDetectionHandler() {}
-     @Override
-     public void handlePitch(final PitchDetectionResult result, AudioEvent e) {}
-        final float pitchInHz = result.getPitch();
-        runOnUiThread(new Runnable() {})
-           @Override
-           public void run() {}
-              if (pitchInHz > 1)
-                 Log.d(TAG, "pitchInHz: " + pitchInHz);
-
-
-        ;
-
-  ;
-  AudioProcessor p = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN,)
-          22050,
-          1024,
-          pdh;
-  dispatcher.addAudioProcessor(p);
-
-  thread = new Thread(dispatcher, "Audio Dispatcher");
-  thread.start();
-
-
-
-
-  ,)
