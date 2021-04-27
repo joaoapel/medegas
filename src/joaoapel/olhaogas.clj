@@ -1,7 +1,9 @@
 (ns joaoapel.olhaogas
   (:gen-class)
   (:require [clojure.java.io :as io]
-            [badigeon.javac :as javac])
+            [badigeon.javac :as javac]
+            [flow-storm.api :as fsa]
+            [clojure.java.shell :as sh])
   (:import  (be.tarsos.dsp.pitch PitchDetectionHandler PitchDetector PitchProcessor
                                 PitchDetectionResult PitchProcessor$PitchEstimationAlgorithm)
            (be.tarsos.dsp.io.jvm AudioDispatcherFactory JVMAudioInputStream)
@@ -12,13 +14,18 @@
 ;;Clojure Extended: Java interop (English Edition), Ivan Grishaev
 
 
+;;Para ligar o debugger SPC o t comando:
+;; clj -Sdeps '{:deps {jpmonettas/flow-storm-debugger {:mvn/version "0.3.3"}}}' -m flow-storm-debugger.server
+
+;;(sh/sh "clj -Sdeps '{:deps {jpmonettas/flow-storm-debugger {:mvn/version "0.3.3"}}}' -m flow-storm-debugger.server")
+
+(fsa/connect)
+
+(sh/sh "pwd")
+
 (defn m [pitches]
   (/ (apply + pitches) (count pitches)))
 
-
-
-
-;;Usar reify na interface
 (defn detection-pitch [source]
   (let [dispatcher (AudioDispatcherFactory/fromFile (io/file source) 2048 1024)
         algorithm (PitchProcessor$PitchEstimationAlgorithm/YIN)
@@ -26,24 +33,22 @@
         pdh (reify PitchDetectionHandler
               (handlePitch [this result event]
                 (let [p (.getPitch result)]
-                  (when (<= 2600 p 3300)
+                  (when (pos? p)
                     (swap! pitch conj p)))))
-
         pitch-processor (PitchProcessor. algorithm 44100 2048 pdh)]
     (.addAudioProcessor dispatcher pitch-processor)
     (.run dispatcher)
     (m @pitch)))
 
-(require '[clojure.java.shell :as sh])
 
-(sh/sh "pwd")
+
 
 (defn fullness [vazio cheio medido]
   (let [d (- vazio cheio)
         m (- vazio medido)]
     (/ m d)))
 
-(fullness (detection-pitch "./vazio.wav") (detection-pitch "./cheio.wav") 3054)
+(fullness (detection-pitch "./vazio.wav") (detection-pitch "./cheio.wav") (detection-pitch "./usado.wav"))
 
 (detection-pitch "./vazio.wav")
 ;; => 3222.609619140625
@@ -52,7 +57,10 @@
 (detection-pitch "./usado.wav")
 ;; => 3054.1989822387695
 
+(defn filtro [x]
+  (when (and (<= x 3300) (>= x 2600)) x))
 
+(filtro 3000)
 
 (detection-pitch "./cheio.wav")
 ;; => 2755.599168346774
