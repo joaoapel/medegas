@@ -1,8 +1,9 @@
 (ns joaoapel.olhaogas
   (:gen-class)
   (:require [clojure.java.io :as io]
+            [clojure.math.numeric-tower :as math]
             [badigeon.javac :as javac]
-            [flow-storm.api :as fsa]
+            #_[flow-storm.api :as fsa]
             [clojure.java.shell :as sh])
   (:import  (be.tarsos.dsp.pitch PitchDetectionHandler PitchDetector PitchProcessor
                                 PitchDetectionResult PitchProcessor$PitchEstimationAlgorithm)
@@ -19,9 +20,9 @@
 
 ;;(sh/sh "clj -Sdeps '{:deps {jpmonettas/flow-storm-debugger {:mvn/version "0.3.3"}}}' -m flow-storm-debugger.server")
 
-(fsa/connect)
+#_(fsa/connect)
 
-(sh/sh "pwd")
+#_(sh/sh "pwd")
 
 (defn m [pitches]
   (/ (apply + pitches) (count pitches)))
@@ -53,6 +54,8 @@
 (detection-pitch "./vazio.wav")
 ;; => 3222.609619140625
 
+(math/ceil (detection-pitch "./vazio.wav"))
+
 
 (detection-pitch "./usado.wav")
 ;; => 3054.1989822387695
@@ -64,6 +67,10 @@
 
 (detection-pitch "./cheio.wav")
 ;; => 2755.599168346774
+;;
+
+
+
 
 (comment
   "
@@ -91,7 +98,7 @@
   (defn java-compiler [x]
     (javac/javac x {;; Emit class files to the target/classes directory
                     :compile-path "target/classes"
-                    ;; Additional options used by the javac command
+                  ;; Additional options used by the javac command
                     :javac-options ["-cp" "src:target/classes" "-target" "7"
                                     "-source" "11" "-Xlint:-options"]}))
 
@@ -100,28 +107,6 @@
   (java-compiler "src-java/TarsosDSP/"))
 ;;-----------------------------------------------------------------
 ;;-----------------------------------------------------------------
-
-
-;;-----------------------------------------------------------------
-;; TESTES COM A TRANSFORMAÇÃO DO AUDIO
-;;-----------------------------------------------------------------
-;;Transformando Java IO para formato do Tarsos
-
-
-(defn import-audio-tarsos [x buffersize bufferoverlap]
- (AudioDispatcherFactory/fromFile x buffersize bufferoverlap))
-
-
-
-(comment
-  Parameters:
-    sampleRate - The requested sample rate must be supported by the capture device. Nonstandard sample rates can be problematic!
-    audioBufferSize - The size of the buffer defines how much samples are processed in one step. Common values are 1024,2048.
-    bufferOverlap - How much consecutive buffers overlap (in samples). Half of the AudioBufferSize is common.
-    Returns a new audioprocessor
-
-    ,)
-
 
 (defn -main
   "I don't do a whole lot ... yet."

@@ -1,7 +1,9 @@
 (ns joaoapel.olhaogas-test
   (:require [clojure.test :refer :all]
+            [clojure.math.numeric-tower :as math]
             [joaoapel.olhaogas :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+
+(deftest detection-pitch-test
+  (testing "Testando a função principal"
+    (is (= 3223.0 (math/ceil (detection-pitch "./vazio.wav"))))))
