@@ -1,46 +1,39 @@
-# olhaogas
+# OlhaOGás
 
 FIXME: my new application.
 
-## Installation
+## Instalação
 
-Download from https://github.com/joaoapel/olhaogas
+Download: https://github.com/joaoapel/olhaogas
 
-## Usage
+## Uso
 
-FIXME: explanation
+Esta biblioteca foi criada com o intuito de utilizar frequências sonoras
+para detectar a quantidade de gás no seu botijão.
 
-Run the project directly:
+Para tanto é só gravar a batida no meio do butijão com um pedaço de madeira.
+
+Para rodar o projeto:
 
     $ clojure -M -m joaoapel.olhaogas
 
-Run the project's tests (they'll fail until you edit them):
+Para rodar os testes (por enquanto apenas testando a função principal):
 
     $ clojure -M:test:runner
 
-Build an uberjar:
+Para fazer a build do uberjar:
 
     $ clojure -M:uberjar
 
-Run that uberjar:
+Rode o uberjar:
 
-    $ java -jar olhaogas.jar
+    $ java -jar olhaogas.jar ./caminho-para-arquivo.wav
 
-## Options
 
-FIXME: listing of options this app accepts.
+## Examplos
+O arquivo utilizado está na raiz do projeto.
 
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+    $ java -jar olhaogas.jar ./usado.wav
 
 ## License
 

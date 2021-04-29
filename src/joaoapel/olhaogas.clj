@@ -24,6 +24,9 @@
 
 #_(sh/sh "pwd")
 
+
+
+
 (defn m [pitches]
   (/ (apply + pitches) (count pitches)))
 
@@ -44,26 +47,43 @@
 
 
 
-(defn fullness [vazio cheio medido]
-  (let [d (- vazio cheio)
-        m (- vazio medido)]
+(defn fullness [medido]
+  (let [d (- 3222 2755)
+        m (- 3222 (detection-pitch medido))]
     (/ m d)))
 
-(fullness (detection-pitch "./vazio.wav") (detection-pitch "./cheio.wav") (detection-pitch "./usado.wav"))
+
+
+(detection-pitch "./resources/cheio/a1.wav")
+;; => 336.3449350992839
+
+(detection-pitch "./resources/cheio/a2.wav")
+;; => 358.95327654751867
+
+
+(detection-pitch "./resources/cheio/a3.wav")
+;; => 48.72014570236206
+
+(detection-pitch "./resources/vazio/v2.wav")
+;; => 55.05217695236206
+
+
+
+(detection-pitch "./resources/vazio/v3.wav")
+;; => 51.68473434448242
+
+
+
+
+
 
 (detection-pitch "./vazio.wav")
 ;; => 3222.609619140625
-
-(math/ceil (detection-pitch "./vazio.wav"))
 
 
 (detection-pitch "./usado.wav")
 ;; => 3054.1989822387695
 
-(defn filtro [x]
-  (when (and (<= x 3300) (>= x 2600)) x))
-
-(filtro 3000)
 
 (detection-pitch "./cheio.wav")
 ;; => 2755.599168346774
@@ -109,6 +129,6 @@
 ;;-----------------------------------------------------------------
 
 (defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+  "Chama a função principal de detecção."
+  [args]
+  (println "O seu botijão está com a seguinte porcentagem de gás: " (math/ceil (* (fullness args) 100))))
